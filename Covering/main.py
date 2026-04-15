@@ -1,40 +1,82 @@
-tabela = []
+from itertools import combinations
 
 
 def wczytanie_tabel():
+    tab = []
     with open('tabela.txt', 'r') as file:
-        tab =[]
-        for i in file:
-            row = [int(x) for x in i.split()]
+        for line in file:
+            row = [int(x) for x in line.split()]
             tab.append(row)
-        for j in tab:
-            tabela.append(j)
+        return tab
 
 
-def drukowanie_tabel(tab):
+def drukuj(tab):
     for i in tab:
         print(i)
 
 
-def sprawdzanie_sprzecznosci(wiersz_sprawdzany, tabela_sprawdzana):
-    ilosc_atrybutow = len(wiersz_sprawdzany)-1
-    atrybut_decyzyjny = len(wiersz_sprawdzany) - 1
+def generuj_warunki(wiersz):
+    atrybuty = [(i, wiersz[i]) for i in range(len(wiersz)-1)]
+    warunki = []
+    for r in range(1, len(atrybuty)+1):
+        for comb in combinations(atrybuty,r):
+            warunki.append(comb)
+    return warunki
+
+
+def pokrywanie(regula, rekord):
+    for (i, j) in regula:
+        if rekord[i] != j:
+            return False
+    return True
+
+
+def ocen_regule(regula, tab, decyzja):
+    TP = 0
+    FP = 0
+    for i in tabela:
+        if pokrywanie(regula, i):
+            if i[-1] == decyzja:
+                TP += 1
+            else:
+                FP += 1
+    if TP + FP == 0:
+        return 0
+    return TP/(TP+FP)
+
+
+def najlepsza_regula(tab):
+    najlepsza = None
+    najlepsza_ocena = 0
+    for wiersz in tab:
+        decyzja = wiersz[-1]
+        warunki = generuj_warunki(wiersz)
+        for reg in warunki:
+            ocena = ocen_regule(reg, tab, decyzja)
+            if ocena > najlepsza_ocena:
+                najlepsza_ocena = ocena
+                najlepsza = (reg, decyzja)
+    return najlepsza
+
+
+def sequential_covering(tab):
+    dane = tabela.copy()
     reguly = []
-    for i in tabela_sprawdzana:
-        o = 1
-        j = 0
-        while j < ilosc_atrybutow:
-            if wiersz_sprawdzany[j] == i[j] and wiersz_sprawdzany[atrybut_decyzyjny] == i[atrybut_decyzyjny]:
-                reguly.append(f"z o{i} (a{j} = {i[j]}) => (d = {i[atrybut_decyzyjny]})")
-                j = j + 1
-                o = o + 1
-                break
-            j = j + 1
-            o = o + 1
-    drukowanie_tabel(reguly)
+    while len(dane)>0:
+        wynik = najlepsza_regula(dane)
+        if wynik is None:
+            break
+        regula, decyzja = wynik
+        reguly.append((regula, decyzja))
+        nowe = []
+        for r in dane:
+            if not pokrywanie(regula, r):
+                nowe.append(r)
+        dane = nowe
+    return reguly
 
 
-wczytanie_tabel()
-drukowanie_tabel(tabela)
-sprawdzanie_sprzecznosci(tabela[1], tabela)
+tabela = wczytanie_tabel()
+drukuj(tabela)
+
 
