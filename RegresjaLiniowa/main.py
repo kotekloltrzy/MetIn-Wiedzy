@@ -2,6 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 matplotlib.use('TkAgg')
+# wersja matplotlib: 3.9.4
 
 
 def wczytaj_dane(plik):
@@ -77,7 +78,7 @@ def przewidywanie(a, b, nowe_x):
 x, y = wczytaj_dane("dane.txt")
 
 
-def uruchomienie_funckji(dane_x, dane_y, nowe_x=None):
+def uruchomienie_funckji(dane_x, dane_y, nowe_x):
     Mx = srednia_aryt(dane_x)
     My = srednia_aryt(dane_y)
     Sx = odchyl_stand(dane_x, Mx)
@@ -85,9 +86,8 @@ def uruchomienie_funckji(dane_x, dane_y, nowe_x=None):
     r = korelacja_pearsona(dane_x, dane_y)
     a, b = naj_pas_lin(Mx, My, Sx, Sy, r)
     wykres(a, b, dane_x, dane_y)
-    if nowe_x is not None:
-        y_pred = przewidywanie(a, b, nowe_x)
-        print(f"Predykcja dla x = {nowe_x}: y = {y_pred}")
+    y_pred = przewidywanie(a, b, nowe_x)
+    print(f"Predykcja dla x = {nowe_x}: y = {y_pred}")
 
 
-uruchomienie_funckji(x, y, nowe_x=6)
+uruchomienie_funckji(x, y, 6)
