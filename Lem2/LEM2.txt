@@ -1,0 +1,15 @@
+LEM2:
+
+bierzemy z koncept 1 atrybut pierwszy od lewej który ma najwięcej powtarzających się elementów atrybutu w obiektach
+
+sprawdzamy czy jest sprzeczna z koncept 2
+	sprzeczna: dla koncept1 a2 = 1 i dla kocnept2 a2 = 2 to jest sprzeczność
+
+jeżeli sprzeczne to bierzemy dalej tylko z obiektów co mają ten atrybut i sprawdzamy więcej
+
+jeżeli nie sprzeczne to zapisujemy regułę i usuwamy te obiekty z obiegu np.:
+	rule1 (a2 = 1) ∧ (a3 = 1) ∧ (a1 = 1) ∧ (a4 = 3) ∧ (a5 = 2) => (d = 1)
+
+drukujemy reguły i ile razy występowały np.:
+	rule2 (a1 = 2) => (d = 1)[2]
+
