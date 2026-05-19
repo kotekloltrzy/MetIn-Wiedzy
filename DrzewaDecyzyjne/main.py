@@ -16,7 +16,7 @@ def wczytanie_danych(plik):
 dane_tabeli = wczytanie_danych("dane.txt")
 
 
-def entropia(tabela):
+def entropia(tabela):  # ile jak "Tak" ile jest "Nie" i obliczanie entropii
     pozytywne = 0
     negatywne = 0
     wszystkie = len(tabela)
@@ -71,7 +71,7 @@ def entropia_konkretna(tabela, kolumna):  # funkcja moze przyjmowac wartosc kolu
             e -= pn * math.log(pn, 2)
 
         wyniki[i].append(round(e, 3))
-    return wyniki
+    return wyniki  # zwraca słownik {nazwa: [ilość "Tak", ilość "Nie", gain}
 
 
 def gain(tabela, wartosc):
@@ -90,28 +90,52 @@ def gain(tabela, wartosc):
     return wartosc
 
 
-def sortuj_gainy(tabela):
+def sortuj_gainy(tabela, uzyte_kolumny=None):  # sprawdzanie gainow i zwracanie posortowanej listy
+    if uzyte_kolumny is None:
+        uzyte_kolumny = []
+
     kolumny = list(tabela[0].keys())
     wyniki_gain = []
 
-    for i in range(1, len(kolumny) - 1):
+    for i in range(1, len(kolumny) - 1):  # pomijamy dzień i decyzje
         nazwa = kolumny[i]
+
         ent_kon = entropia_konkretna(tabela, i)
-        wynik = gain(tabela, ent_kon)
+        wynik = gain(tabela, ent_kon)  # obliczanie gaina
+
+        gain_wartosc = wynik["Gain"]
+
+        if nazwa in uzyte_kolumny:  # jeżeli kolumna była wykorzystana to ustawia gain na 0
+            gain_wartosc = 0
 
         wyniki_gain.append({
             "wartość": nazwa,
-            "gain": wynik["Gain"]
+            "gain": gain_wartosc
         })
 
     return sorted(wyniki_gain, key=lambda x: x["gain"], reverse=True)
 
 
-def tworzenie_drzewa(tabela):
-    sorted_gains = sortuj_gainy(tabela)
+def tworzenie_drzewa(tabela, uzyte_kolumny=None):
+    if uzyte_kolumny is None:
+        uzyte_kolumny = []
+
+    sorted_gains = sortuj_gainy(tabela, uzyte_kolumny)
+    if sorted_gains[0]["gain"] == 0:  # gdy gain wynosi 0 to jest decyzja większościowa
+        tak = 0
+        nie = 0
+        for wiersz in tabela:
+            if list(wiersz.values())[-1] == "Tak":
+                tak += 1
+            else:
+                nie += 1
+        return "Tak" if tak >= nie else "Nie"
+
     najlepsza = sorted_gains[0]["wartość"]
-    drzewo = {najlepsza: {}}
+    uzyte_kolumny.append(najlepsza)  # kolumny mogą być użyte tylko raz
+    drzewo = {najlepsza: {}}  # zaczynamy tworzyc drzewo
     temp = entropia_konkretna(tabela, najlepsza)
+
     for wartosc in temp:
         podzbior = []
         for wiersz in tabela:
@@ -119,15 +143,18 @@ def tworzenie_drzewa(tabela):
                 nowy = wiersz.copy()
                 del nowy[najlepsza]
                 podzbior.append(nowy)
+
         tak = temp[wartosc][0]
         nie = temp[wartosc][1]
+
         if tak == 0:
             drzewo[najlepsza][wartosc] = "Nie"
+
         elif nie == 0:
             drzewo[najlepsza][wartosc] = "Tak"
         else:
-            drzewo[najlepsza][wartosc] = tworzenie_drzewa(podzbior)
-
+            # rekurencyjnie powtarzamy do utrzymania całego drzewa
+            drzewo[najlepsza][wartosc] = tworzenie_drzewa(podzbior, uzyte_kolumny)
     return drzewo
 
 
