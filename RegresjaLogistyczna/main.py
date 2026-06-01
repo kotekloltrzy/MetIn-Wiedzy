@@ -110,6 +110,10 @@ def trenowanie(tren, uczenie=0.01, ile=100):
 
 def testowanie(test, wagi, bias):
     poprawnie = 0
+    tp = 0  # true positive
+    tn = 0  # true negative
+    fp = 0  # false positive
+    fn = 0  # false negative
     for probka in test:
         x = probka[:-1]
         y = probka[-1]
@@ -127,7 +131,17 @@ def testowanie(test, wagi, bias):
         # sprawdzanie poprawności
         if pred == y:
             poprawnie += 1
-    return poprawnie / len(test)
+        # macierz pomyłek
+        if pred == 1 and y == 1:
+            tp += 1
+        elif pred == 0 and y == 0:
+            tn += 1
+        elif pred == 1 and y == 0:
+            fp += 1
+        elif pred == 0 and y == 1:
+            fn += 1
+    accuracy = round(poprawnie / len(test), 3)
+    return accuracy, tp, tn, fp, fn
 
 
 def uruchom():
@@ -140,11 +154,17 @@ def uruchom():
         treningowy = skalowanie(treningowy, srednie, odchylenia)  # skalujemy trening
         testowy = skalowanie(testowy, srednie, odchylenia)  # skalujemy test tymi samymi wartościami co trening
         wagi, bias = trenowanie(treningowy, uczenie=0.01, ile=100)  # trenowanie modelu
-        accuracy = testowanie(testowy, wagi, bias)  # testowanie i wyciąganie accuracy
+        accuracy, tp, tn, fp, fn = testowanie(testowy, wagi, bias)  # testowanie i wyciąganie accuracy
         accuracy_wszystkie.append(accuracy)
-        print(f"Fold {fold + 1}: accuracy = {accuracy:.4f}")
-    srednie_accuracy = (sum(accuracy_wszystkie) / len(accuracy_wszystkie))
-    print("\n", f"Średni accuracy = {srednie_accuracy:.4f}")
+        print(f"\n{'=========================================================='}")
+        print(f"FOLD {fold + 1}")
+        print(f"Accuracy = {accuracy:}")
+        print("\nMacierz pomyłek:")
+        print(f"TP: {tp}      TN: {tn}")
+        print(f"FP: {fp}      FN: {fn}")
+    srednie_accuracy = round((sum(accuracy_wszystkie) / len(accuracy_wszystkie)), 3)
+    print(f"Średnie accuracy = {srednie_accuracy}")
+
 
 
 uruchom()
