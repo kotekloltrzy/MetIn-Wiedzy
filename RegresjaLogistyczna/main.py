@@ -12,7 +12,7 @@ def wczytaj_plik(nazwa):
     return temp
 
 
-def podzial(dane):
+def podzial(dane):  # podział danych na foldy
     n = len(dane)
     ilosc = n // 6
     extra = n % 6

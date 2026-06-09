@@ -33,7 +33,7 @@ def sprzeczna(regula, decyzja, tabela):  # sprzeczne gdy warunki takie same ale 
 
 def wybierz_najlepszy(aktualne, regula):  # wybieramy warunek o najwiekszym pokryciu
     najlepszy = None
-    max_pokrycie = -1  # ile obiektów spełnia najlepszy warunek
+    max_pokrycie = 0  # ile obiektów spełnia najlepszy warunek
     for atr in atrybuty:
         wartosci = set(o[atr] for o in aktualne)
         for value in wartosci:
@@ -71,8 +71,8 @@ def lem2(tabela):
                 najlepszy = wybierz_najlepszy(aktualne, regula)
                 regula.append(najlepszy)
                 # zostawiamy tylko obiekty które speniają nowe warunki
-                aktualne = [o for o in aktualne if o[najlepszy[0]] == najlepszy[1]]
-            zasady.append({"regula": regula, "decyzja": decyzja})  # dodajemy do zasad zbiór regułę jako zbiór warunków
+                aktualne = [o for o in aktualne if o[najlepszy[0]] == najlepszy[1]]  # sprawdza czy np "a1" == 2
+            zasady.append({"regula": regula, "decyzja": decyzja})  # dodajemy do zasad regułę jako zbiór warunków
             niepokryte = usun_pokryte(niepokryte, regula)
     return zasady
 
